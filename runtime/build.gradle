@@ -195,6 +195,7 @@ if (!ndkDebuggable)
 project.ext._buildToolsVersion = "23.0.3"
 
 model {
+
     android {
         compileSdkVersion = 23
         buildToolsVersion = project.ext._buildToolsVersion
@@ -223,7 +224,7 @@ model {
         ])
 
         cppFlags.addAll(["-std=c++11", "-fexceptions", "-fno-builtin-stpcpy"])
-        CFlags.addAll(["-Wno-error=format-security", "-g", "-fno-builtin-stpcpy"])
+        CFlags.addAll(["-Wno-error=format-security", "-g", "-fno-builtin-stpcpy"]) //, "-I", file("src/main/jni/include").absolutePath]
 
         ldLibs.addAll(["android", "dl", "log", "atomic", "z"])
 
@@ -233,7 +234,20 @@ model {
 
         stl = "c++_static"
 
-        abiFilters.addAll(["armeabi-v7a", "x86", "arm64-v8a"])
+        abiFilters.addAll(["x86"]); //"armeabi-v7a", "arm64-v8a"])
+    }
+
+    repositories {
+        libs(PrebuiltLibraries) {
+            prebuilt {
+                println "$projectDir"
+                headers.srcDir "$projectDir/src/main/jni/include"
+                binaries.withType(SharedLibraryBinary) {
+                    sharedLibraryFile = file("$projectDir/src/main/libs/x86/libv8.so")
+                    println "Included libraries: " + file("$projectDir/src/main/libs/x86/libv8.so")
+                }
+            }
+        }
     }
 
     android.sources {
@@ -245,16 +259,8 @@ model {
             }
 
             jni {
-                source {
-                    srcDirs 'src/main/jni'
-                }
-
-                exportedHeaders {
-                    srcDir "src/main/jni/include"
-                }
-
                 dependencies {
-                    library "v8" linkage "static"
+                    library "prebuilt" linkage "shared"
                 }
             }
         }
@@ -309,11 +315,11 @@ model {
 
         create("x86") {
             abiFilters.add("x86")
-
-            ldLibs.add("${file("src/main/libs/x86/libv8_base.a")}".toString())
-            ldLibs.add("${file("src/main/libs/x86/libv8_libplatform.a")}".toString())
-            ldLibs.add("${file("src/main/libs/x86/libv8_libbase.a")}".toString())
-            ldLibs.add("${file("src/main/libs/x86/libv8_nosnapshot.a")}".toString())
+//
+//            ldLibs.add("${file("src/main/libs/x86/libv8_base.a")}".toString())
+//            ldLibs.add("${file("src/main/libs/x86/libv8_libplatform.a")}".toString())
+//            ldLibs.add("${file("src/main/libs/x86/libv8_libbase.a")}".toString())
+//            ldLibs.add("${file("src/main/libs/x86/libv8_nosnapshot.a")}".toString())
             ldLibs.add("${file("src/main/libs/x86/libzip.a")}".toString())
         }
 

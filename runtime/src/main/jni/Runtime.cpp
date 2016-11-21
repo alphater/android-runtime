@@ -416,7 +416,7 @@ void Runtime::ClearStartupData(JNIEnv *env, jobject obj) {
 }
 
 static void InitializeV8() {
-	auto platform = v8::platform::CreateDefaultPlatform();
+	auto platform = v8::platform::CreateDefaultPlatform(0);
 	V8::InitializePlatform(platform);
 	V8::Initialize();
 }
